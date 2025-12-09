@@ -14,8 +14,8 @@ public class WUGraph {
   
   private HashMap<Object, VertexInfo> vertexTable; //maps Object
   
-  private VertextInfo vertexHead; // Head of List
-  private VertextInfo vertexTail; // Tail of List
+  private VertexInfo vertexHead; // Head of List
+  private VertexInfo vertexTail; // Tail of List
 
   // Vertex Representation
   private class VertexInfo {
@@ -52,10 +52,8 @@ public class WUGraph {
   public WUGraph(); //Makes an empty graph
       vertexTable = new HashMap<>();
       edgeTable = new HashMap<>();
-
       vertexHead = null;
       vertexTail = null;
-
       vertexCount = 0;
       edgeCount = 0;
   }
@@ -82,7 +80,7 @@ public class WUGraph {
    * Running time:  O(|V|).
    */
   public Object[] getVertices(){
-    Object[] array = new Object[vertexCoundt];
+    Object[] array = new Object[vertexCount];
     int i = 0;
     VertexInfo current = vertexHead;
 
