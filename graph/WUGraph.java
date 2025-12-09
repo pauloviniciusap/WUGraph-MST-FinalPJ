@@ -13,17 +13,16 @@ public class WUGraph {
   private int vertexCount; // Amount of vertices
   
   private HashMap<Object, VertexInfo> vertexTable; //maps Object
-  private HashMap<VertexPair, EdgeNode> edgeTable; //stores the pairs (u,v)/(v,u)
   
   private VertextInfo vertexHead; // Head of List
   private VertextInfo vertexTail; // Tail of List
 
   // Vertex Representation
   private class VertexInfo {
-    int degree; 
+    int degree; //number of edges
     VertexInfo previous;
     VertexInfo next;
-    Object vertex;
+    Object vertex; //vertex object
     EdgeNode nextList; // adjacent list (USE FOR LATER!)
 
     VertexInfo(Object v){
@@ -36,20 +35,21 @@ public class WUGraph {
   }
 
   private class EdgeNode{
-    Object neighbor;
-    int weight; 
-    EdgeNode previous;
+    Object neighbor; //the neighbor the edge is next to
+    int weight; //The weight
+    EdgeNode previous; //links adjacent to the list
     EdgeNode next;
-    EdgeNode partner;
+    EdgeNode partner; // edge in the vertex's list
 
     EdgeNode(Object n, int w){
       neighbor = n;
       weight = w;
     }
   }
+  private HashMap<VertexPair, EdgeNode> edgeTable; //stores the pairs (u,v)/(v,u)
 
   // The WUGraph is initialized and has a runtime of O(1)
-  public WUGraph();
+  public WUGraph(); //Makes an empty graph
       vertexTable = new HashMap<>();
       edgeTable = new HashMap<>();
 
@@ -59,20 +59,12 @@ public class WUGraph {
       vertexCount = 0;
       edgeCount = 0;
   }
-  /**
-   * vertexCount() returns the number of vertices in the graph.
-   *
-   * Running time:  O(1).
-   */
   public int vertexCount(){
-    return vertexCount;
+    return vertexCount; // returns the number of vertices in the graph
   }
 
-  /**
-   * edgeCount() returns the total number of edges in the graph.
-   *
-   * Running time:  O(1).
-   */
+
+   //edgeCount() returns the total number of edges in the graph.
   public int edgeCount(){
     return edgeCount;
   }
