@@ -12,10 +12,13 @@ public class WUGraph {
   private int edgeCount; //Count (USE FOR LATER!)
   private int vertexCount; // Amount of vertices
   
-  private HashTableChained vertexTable; //maps Object
+  private HashMap<Object, VertexInfo> vertexTable; //maps Object
+  private HashMap<VertexPair, EdgeNode> edgeTable; //stores the pairs (u,v)/(v,u)
+  
   private VertextInfo vertexHead; // Head of List
-  private VertextInfo VertexTail; // Tail of List
+  private VertextInfo vertexTail; // Tail of List
 
+  // Vertex Representation
   private class VertexInfo {
     int degree; 
     VertexInfo previous;
@@ -29,26 +32,35 @@ public class WUGraph {
       nextList = null;
       next = null;
       previous = null;
-  /**
-   * WUGraph() constructs a graph having no vertices or edges.
-   *
-   * Running time:  O(1).
-   */
-  public WUGraph();
 
+  // The WUGraph is initialized and has a runtime of O(1)
+  public WUGraph();
+      vertexTable = new HashMap<>();
+      edgeTable = new HashMap<>();
+
+      vertexHead = null;
+      vertexTail = null;
+
+      vertexCount = 0;
+      edgeCount = 0;
+  }
   /**
    * vertexCount() returns the number of vertices in the graph.
    *
    * Running time:  O(1).
    */
-  public int vertexCount();
+  public int vertexCount(){
+    return vertexCount;
+  }
 
   /**
    * edgeCount() returns the total number of edges in the graph.
    *
    * Running time:  O(1).
    */
-  public int edgeCount();
+  public int edgeCount(){
+    return edgeCount;
+  }
 
   /**
    * getVertices() returns an array containing all the objects that serve
@@ -62,8 +74,19 @@ public class WUGraph {
    *
    * Running time:  O(|V|).
    */
-  public Object[] getVertices();
+  public Object[] getVertices(){
+    Object[] array = new Object[vertexCoundt];
+    int i = 0;
+    VertexInfo current = vertexHead;
 
+    while(current != null){
+      array[i] = current.vertex;
+      current = current.next;
+      i++;
+    }
+    return array;
+  }
+    
   /**
    * addVertex() adds a vertex (with no incident edges) to the graph.
    * The vertex's "name" is the object provided as the parameter "vertex".
