@@ -32,6 +32,21 @@ public class WUGraph {
       nextList = null;
       next = null;
       previous = null;
+    }
+  }
+
+  private class EdgeNode{
+    Object neighbor;
+    int weight; 
+    EdgeNode previous;
+    EdgeNode next;
+    EdgeNode partner;
+
+    EdgeNode(Object n, int w){
+      neighbor = n;
+      weight = w;
+    }
+  }
 
   // The WUGraph is initialized and has a runtime of O(1)
   public WUGraph();
