@@ -231,7 +231,12 @@ public class WUGraph {
    * Running time:  O(1).
    */
   public boolean isEdge(Object u, Object v){
-	return false;
+	  if(!isVertex(u) || !isVertex(v)){
+		return false;
+	  }
+	  //Because VertexPair is unordered, (u, v) and (v, u) are identical keys.
+	  VertexPair uv = new VertexPair(u, v);
+	  return edgeTable.containsKey(uv);
   }
   /**
    * weight() returns the weight of (u, v).  Returns zero if (u, v) is not
@@ -247,8 +252,16 @@ public class WUGraph {
    *
    * Running time:  O(1).
    */
+	// If no edge exists, then it will return 0
   public int weight(Object u, Object v){
-	  return 0;
-  }
+	  if(!isVertex(u) || !isVertex(v)){
+	  	return 0;
+		}
+	  VertexPair uv = new VertexPair(u, v);
+	  EdgeNode edge = edgeTable.get(uv);
 
+	  if (edge == null){
+		  return 0;
+	  }
+	  return edge.weight;
 }
