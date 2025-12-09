@@ -8,7 +8,27 @@ package graph;
  */
 
 public class WUGraph {
+  
+  private int edgeCount; //Count (USE FOR LATER!)
+  private int vertexCount; // Amount of vertices
+  
+  private HashTableChained vertexTable; //maps Object
+  private VertextInfo vertexHead; // Head of List
+  private VertextInfo VertexTail; // Tail of List
 
+  private class VertexInfo {
+    int degree; 
+    VertexInfo previous;
+    VertexInfo next;
+    Object vertex;
+    EdgeNode nextList; // adjacent list (USE FOR LATER!)
+
+    VertexInfo(Object v){
+      vertex = v;
+      degree = 0;
+      nextList = null;
+      next = null;
+      previous = null;
   /**
    * WUGraph() constructs a graph having no vertices or edges.
    *
