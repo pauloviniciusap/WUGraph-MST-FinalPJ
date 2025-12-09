@@ -49,7 +49,7 @@ public class WUGraph {
   private HashMap<VertexPair, EdgeNode> edgeTable; //stores the pairs (u,v)/(v,u)
 
   // The WUGraph is initialized and has a runtime of O(1)
-  public WUGraph(); //Makes an empty graph
+  public WUGraph(){ //Makes an empty graph
       vertexTable = new HashMap<>();
       edgeTable = new HashMap<>();
       vertexHead = null;
