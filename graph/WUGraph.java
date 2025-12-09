@@ -18,15 +18,15 @@ public class WUGraph {
   private VertexInfo vertexTail; // Tail of List
 
   // Vertex Representation
-  private class VertexInfo {
+  private class Vertex {
     int degree; //number of edges
-    VertexInfo previous;
-    VertexInfo next;
-    Object vertex; //vertex object
+    Vertex previous;
+    Vertex next;
+    Object appVertex; //vertex object
     EdgeNode nextList; // adjacent list (USE FOR LATER!)
 
-    VertexInfo(Object v){
-      vertex = v;
+    Vertex(Object v){
+      appVertex = v;
       degree = 0;
       nextList = null;
       next = null;
@@ -82,7 +82,7 @@ public class WUGraph {
   public Object[] getVertices(){
     Object[] array = new Object[vertexCount];
     int i = 0;
-    VertexInfo current = vertexHead;
+    Vertex current = vertexHead;
 
     while(current != null){
       array[i] = current.vertex;
@@ -99,7 +99,23 @@ public class WUGraph {
    *
    * Running time:  O(1).
    */
-  public void addVertex(Object vertex);
+  public void addVertex(Object vertex) {
+    if (isVertex(vertex)) {
+		  return;
+	  }
+	  
+	  Vertex newV = new Vertex(vertex);
+	  
+	  newV.next = vertexHead;
+	  if (vertexHead != null) {
+		  vertexHead.prev = newV;
+	  }
+	  vertexHead = newV;
+	  
+	  vertexTable.insert(vertex, newV); 
+	  
+	  numVertices++;
+  }
 
   /**
    * removeVertex() removes a vertex from the graph.  All edges incident on the
@@ -108,7 +124,33 @@ public class WUGraph {
    *
    * Running time:  O(d), where d is the degree of "vertex".
    */
-  public void removeVertex(Object vertex);
+  public void removeVertex(Object vertex) {
+    Entry e = vertexTable.find(vertex);
+	  if (e == null) {
+		  return;
+	  }
+	  
+	  Vertex vert = (Vertex) e.value();
+	  
+	  //Remove edge incidents here
+	  
+	  //Removal from linked list
+	  if (vert.prev != null) {
+		  vert.prev.next = vert.next;
+	  }
+	  else {
+		  head = vert.next;
+	  }
+	  
+	  if (vert.next != null) {
+		  vert.next.prev = vert.prev;
+	  }
+	  
+	  //Removal from hash table
+	  vertexTable.remove(vertex);
+	  
+	  numVertices--;
+  }
 
   /**
    * isVertex() returns true if the parameter "vertex" represents a vertex of
@@ -116,7 +158,9 @@ public class WUGraph {
    *
    * Running time:  O(1).
    */
-  public boolean isVertex(Object vertex);
+  public boolean isVertex(Object vertex) {
+    return vertexTable.find(vertex) != null;
+  }
 
   /**
    * degree() returns the degree of a vertex.  Self-edges add only one to the
@@ -125,7 +169,13 @@ public class WUGraph {
    *
    * Running time:  O(1).
    */
-  public int degree(Object vertex);
+  public int degree(Object vertex) {
+    Entry e = vertexTable.find(vertex);
+	  if (e == null) {
+		  return 0;
+	  }
+	  return ((Vertex) e.value()).degree;
+  }
 
   /**
    * getNeighbors() returns a new Neighbors object referencing two arrays.  The
