@@ -178,7 +178,7 @@ public class WUGraph {
 	  if (e == null) {
 		  return 0;
 	  }
-	  return e.degree();
+	  return e.degree;
   }
 
   /**
@@ -201,22 +201,23 @@ public class WUGraph {
    */
   public Neighbors getNeighbors(Object vertex){
 	  Vertex vert = vertexTable.get(vertex);
-	  if (vert == null || v.degree() == 0){ 
+	  if (vert == null || vert.degree == 0){ 
 	  	return null;
 	  }
-	  Neighbors Neighbors = new Neighbors();
-	  Neighbors.neighborList = new Object[vert.?]; //how to call here?
-	  Neighbors.weightList = new int[vert.?];
+	  Neighbors neighbors1 = new Neighbors();
+	  neighbors1.neighborList = new Object[vert.degree]; //how to call?
+	  neighbors1.weightList = new int[vert.degree];
 
-	  EdgeNode current = vert;
+	  EdgeNode current = vert.nextList;
 	  int i = 0;
 
 	  while (current != null){
-		  Neighbors.neighborList[i] = current.neighbor;
-		  Neighbors.weightList[i] = current.weight;
+		  neighbors1.neighborList[i] = current.neighbor;
+		  neighbors1.weightList[i] = current.weight;
 		  i++;
-		  current = current.next();
+		  current = current.next;
 	  }
+	  return neighbors1;
   }
 
   /**
@@ -243,23 +244,37 @@ public class WUGraph {
 
 	if (edgeExist != null){ //update the weight of the edge
 		edgeExist.weight = weight;
+		edgeExist.partner.weight = weight;
 		return;
 	}
+
+	EdgeNode edge1 = new EdgeNode(v, weight); //This is in the U list
+	EdgeNode edge2 = new EdgeNode(u, weight); //This is in the V list
 	
-	EdgeNode edge1 = new EdgeNode(u, weight);
-	edge1 = newU;
-	if(newU != null){
-	newU.nextList = edge1;
-	}
+	edge1.partner = edge2;
+	edge2.partner = edge1;
 	  
-	EdgeNode edge2 = new EdgeNode(v, weight);
-	edge1 = newV;
-	if(newV != null){
+	edge1.next = newU.nextList;
+	if(newU.nextList != null){
+	newU.nextList.previous = edge1;
+	}
+	newU.nextList = edge1;
+	  
+	edge2.next = newV.nextList;
+	if(newV.nextList != null){
+	newV.nextList.previous = edge2;
+	}
 	newV.nextList = edge2;
+
+	newU.degree++;
+	if(v != u){
+		newV.degree++;
 	}
 
 	edgeCount++; // the edge count is added
+	  
 	// please check over
+	edgeTable.put(pair, edge1);
   }
 
   /**
@@ -271,8 +286,49 @@ public class WUGraph {
    * Running time:  O(1).
    */
   public void removeEdge(Object u, Object v){
+	if(!isVertex(u) || !isVertex(v)){
+		return;
+	}
+	EdgeNode edge2;
+	VertexPair pair = new VertexPair(u, v);
+	EdgeNode edge1 = edgeTable.get(pair);
+	if (edge1 == null){
+		return;
+	}
+	edge2 = edge1.partner;
+	  
+	// Unlinking the first edge from u
+	if (edge1.previous != null){
+		edge1.previous.next = edge1.next;
+	} else {
+		vertexTable.get(u).nextList = edge1.next;
+	}
+	if(edge1.next != null){
+		edge1.next.previous = edge1.previous;
+	}
+	  
+	// Here we unlinked the second edge from v
+	if (edge2.previous != null){
+		edge2.previous.next = edge2.next;
+	} else {
+		vertexTable.get(v).nextList = edge2.next;
+	}
+	if(edge2.next != null){
+		edge2.next.previous = edge2.previous;
+	}
 
+	//Need to update degrees here
+	Vertex U = vertexTable.get(u);
+	Vertex V = vertexTable.get(v);
+	U.degree--;
+	if(u != v){
+		V.degree--;
+	}
+
+	edgeTable.remove(pair);
+	edgeCount--;
   }
+	  
 
   /**
    * isEdge() returns true if (u, v) is an edge of the graph.  Returns false
