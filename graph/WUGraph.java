@@ -34,7 +34,7 @@ public class WUGraph {
       previous = null;
     }
   }
-
+// The EdgeNode class represents a single edge inside one of the many vertex's adjacency's
   private class EdgeNode{
     Object neighbor; //the neighbor the edge is next to
     int weight; //The weight
@@ -104,7 +104,8 @@ public class WUGraph {
     if (isVertex(vertex)) {
 		  return;
 	  }
-	  
+	  // If there exists a vertex already, then the program does nothing 
+	  // and prevents duplication.
 	  Vertex newV = new Vertex(vertex);
 	  
 	  newV.next = vertexHead;
@@ -114,8 +115,12 @@ public class WUGraph {
 	  vertexHead = newV;
 	  
 	  vertexTable.put(vertex, newV); 
-	  
+
 	  vertexCount++;
+	  
+	  // The addVertex adds a new Vertex into the linked list and 
+	  // the operation happens at constant time because the HashMap operation is
+	  // O(1) on this instance
   }
 
   /**
@@ -236,8 +241,8 @@ public class WUGraph {
 
 	//stopping here, stuck.
 
-	if (edge != null){ //update the weight of the edge
-		edge.weight = weight;
+	if (edgeExist != null){ //update the weight of the edge
+		edgeExist.weight = weight;
 		return;
 	}
 	
