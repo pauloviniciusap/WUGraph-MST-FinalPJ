@@ -87,7 +87,7 @@ public class WUGraph {
 
     while(current != null){
       array[i] = current.appVertex;
-      current = current.next;
+      current = current.next; //maybe add "if" statement here?
       i++;
     }
     return array;
@@ -173,7 +173,7 @@ public class WUGraph {
 	  if (e == null) {
 		  return 0;
 	  }
-	  return e.degree;
+	  return e.degree();
   }
 
   /**
@@ -195,7 +195,23 @@ public class WUGraph {
    * Running time:  O(d), where d is the degree of "vertex".
    */
   public Neighbors getNeighbors(Object vertex){
-	  return null;
+	  Vertex vert = vertexTable.get(vertex);
+	  if (vert == null || v.degree() == 0){ 
+	  	return null;
+	  }
+	  Neighbors Neighbors = new Neighbors();
+	  Neighbors.neighborList = new Object[vert.?]; //how to call here?
+	  Neighbors.weightList = new int[vert.?];
+
+	  EdgeNode current = vert;
+	  int i = 0;
+
+	  while (current != null){
+		  Neighbors.neighborList[i] = current.neighbor;
+		  Neighbors.weightList[i] = current.weight;
+		  i++;
+		  current = current.next();
+	  }
   }
 
   /**
@@ -208,7 +224,37 @@ public class WUGraph {
    * Running time:  O(1).
    */
   public void addEdge(Object u, Object v, int weight){
+	if(!isVertex(u) || !isVertex(v)){
+		return;
+  	}
+	Vertex newU = vertexTable.get(u);
+	Vertex newV = vertexTable.get(v);
+	// use this to create an EdgeNode (revisit)
 
+	VertexPair pair = new VertexPair (u, v);
+	EdgeNode edgeExist = edgeTable.get(pair);
+
+	//stopping here, stuck.
+
+	if (edge != null){ //update the weight of the edge
+		edge.weight = weight;
+		return;
+	}
+	
+	EdgeNode edge1 = new EdgeNode(u, weight);
+	edge1 = newU;
+	if(newU != null){
+	newU.nextList = edge1;
+	}
+	  
+	EdgeNode edge2 = new EdgeNode(v, weight);
+	edge1 = newV;
+	if(newV != null){
+	newV.nextList = edge2;
+	}
+
+	edgeCount++; // the edge count is added
+	// please check over
   }
 
   /**
