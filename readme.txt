@@ -2,14 +2,17 @@ Work Division / Contributions
 By: Jake H., Juliana W., Paulo P.
 Date: 12/12/25
 
-
-
-
-
-
-
-
-
+Juliana Wong:
+I completed part one of the project which included:
+Vertex Hash Table Integration --> 
+- Creating and maintaining a hash table mapping application level vertex objects to internal Vertex nodes
+- Ensuring constant-time lookup for all vertex-related operations
+Internal Vertex Structure -->
+- Completing the internal Vertex class(linked-list node + adjacency list entry)
+- Distinguished between the application vertex object(stored as appVertex) and the internal Vertex wrapper node used by WUGraph
+Core Graph Operations -->
+- Implemented all required public vertex-related methods in WUGraph.java which were: addVertex(Object vertex), removeVertex(Object vertex), isVertex(Object vertex), vertexCount(), and getVertices()
+- With correct linked-list updates and hash table synchronization
 
 
 
