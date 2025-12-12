@@ -1,1 +1,268 @@
+---
 
+GRADER
+
+1. INTERNAL REPRESENTATION OF THE GRAPH
+
+---
+
+Vertices:
+
+* We store vertices in a `HashMap<Object, Vertex>` called `vertexTable`.
+* Each `Vertex` is an internal node with:
+
+  * `Object appVertex`  - the user level vertex object.
+  * `int degree`        - number of incident edges, self edges add 1.
+  * `Vertex prev` and `Vertex next` - pointers in a doubly linked list of all vertices.
+  * `EdgeNode adj`      - head of this vertex's adjacency list.
+
+Global vertex list:
+
+* All vertices are linked together in a doubly linked list using `prev` and `next`.
+* We keep `vertexHead` and `vertexTail` pointers in the graph.
+* This lets `getVertices()` walk the list in O(|V|) time without searching the hash table.
+
+Edges:
+
+* We store edges in a `HashMap<VertexPair, EdgeNode>` called `edgeTable`.
+* `VertexPair` is the class provided for undirected edge keys, so `(u, v)` and `(v, u)` map to the same key.
+* The value in `edgeTable` is one `EdgeNode` belonging to that undirected edge.
+
+Adjacency lists:
+
+* For each vertex, we keep a doubly linked list of adjacency nodes using the `EdgeNode` class.
+* `EdgeNode` contains:
+
+  * `Object neighbor`   - the neighbor vertex object.
+  * `int weight`        - the edge weight.
+  * `EdgeNode prev` and `EdgeNode next` - pointers in that vertex's adjacency list.
+  * `EdgeNode partner`  - the corresponding half edge in the neighbor's adjacency list.
+
+For a regular edge `(u, v)` with `u != v`:
+
+* We create two `EdgeNode` objects:
+
+  * `eUV` in `u`'s adjacency list with `neighbor = v`.
+  * `eVU` in `v`'s adjacency list with `neighbor = u`.
+* We set `eUV.partner = eVU` and `eVU.partner = eUV`.
+* Both halves share the same weight value.
+* We insert both nodes at the head of their respective adjacency lists for O(1) insertion.
+* In `edgeTable` we store the mapping `VertexPair(u, v) -> eUV`.
+
+For a self edge `(u, u)`:
+
+* We create a single `EdgeNode e` in `u`'s adjacency list with `neighbor = u`.
+* We set `e.partner = e` to point to itself.
+* We insert `e` at the head of `u`'s adjacency list.
+* In `edgeTable` we store `VertexPair(u, u) -> e`.
+
+Counters:
+
+* We maintain:
+
+  * `vertexCount` - the number of vertices.
+  * `edgeCount`   - the number of undirected edges. Self edges count as one.
+* Both are updated in `addVertex`, `removeVertex`, `addEdge` and `removeEdge`.
+
+2. RUNTIME GUARANTEES FOR WUGRAPH OPERATIONS
+
+---
+
+Vertex operations:
+
+* `vertexCount()`
+
+  * Returns the `vertexCount` field, O(1).
+
+* `addVertex(Object v)`:
+
+  * We do a hash table lookup to check if the vertex exists, then insert at the head of the global vertex list.
+  * The `HashMap` put is O(1) expected.
+  * Overall `addVertex` is O(1).
+
+* `removeVertex(Object v)`:
+
+  * We look up the `Vertex` in `vertexTable` in O(1) expected.
+  * Then we walk its adjacency list, which has length equal to the degree `d` of that vertex.
+  * For each incident edge we:
+
+    * Remove the partner `EdgeNode` from the neighbor's adjacency list in O(1) using `prev` and `next`.
+    * Remove the entry from `edgeTable` in O(1) expected.
+    * Decrement degrees and `edgeCount`.
+  * After removing all incident edges, we unlink the vertex from the global vertex list in O(1).
+  * The cost is proportional to the number of incident edges, so `removeVertex` is O(d).
+
+* `isVertex(Object v)`:
+
+  * A `HashMap` `containsKey` lookup on `vertexTable`, O(1) expected.
+
+* `degree(Object v)`:
+
+  * We look up the internal `Vertex` in `vertexTable`, then return the stored `degree` field.
+  * Overall O(1).
+
+Edge operations:
+
+* `edgeCount()`:
+
+  * Returns the `edgeCount` field, O(1).
+
+* `isEdge(Object u, Object v)`:
+
+  * We first check `isVertex(u)` and `isVertex(v)` in O(1) expected.
+  * Then we check `edgeTable.containsKey(new VertexPair(u, v))` in O(1) expected.
+
+* `addEdge(Object u, Object v, int weight)`:
+
+  * If either endpoint is not a vertex, we return immediately.
+  * We check `edgeTable` to see if the edge already exists.
+
+    * If it exists, we just update the weight in the stored `EdgeNode` and its partner. O(1).
+    * If it does not exist:
+
+      * For a regular edge we allocate two `EdgeNode`s, insert each at the head of its adjacency list in O(1), increment both degrees and `edgeCount`, and update `edgeTable` in O(1).
+      * For a self edge we allocate one `EdgeNode`, insert it at the head of that adjacency list, increment the degree and `edgeCount`, and update `edgeTable`.
+  * All steps are O(1) expected.
+
+* `removeEdge(Object u, Object v)`:
+
+  * If either endpoint is not a vertex, we return.
+  * We look up the `EdgeNode` in `edgeTable` in O(1) expected.
+  * If not found, we do nothing.
+  * If found:
+
+    * For a regular edge, we unlink the `EdgeNode` from the adjacency list of `u` and its partner from the adjacency list of `v` via `prev` and `next`, decrement both degrees, decrement `edgeCount`, and remove the entry from `edgeTable`. All of this is O(1).
+    * For a self edge, we unlink a single `EdgeNode`, decrement the degree and `edgeCount`, and remove the entry from `edgeTable`. Also O(1).
+
+* `weight(Object u, Object v)`:
+
+  * We check `isVertex` on both endpoints.
+  * We look up the edge in `edgeTable`, return 0 if not found, otherwise return `edge.weight`.
+  * Hash lookups and field access are O(1) expected.
+
+Neighbor and vertex iteration:
+
+* `getVertices()`:
+
+  * We walk the doubly linked list of vertices starting from `vertexHead` and copy each `appVertex` into an array.
+  * The list length is exactly `vertexCount`, so this is O(|V|).
+
+* `getNeighbors(Object vertex)`:
+
+  * We look up the internal `Vertex` in `vertexTable`.
+  * If the vertex does not exist or its degree is 0, we return null.
+  * We create arrays `neighborList` and `weightList` of size equal to `v.degree`.
+  * We walk the adjacency list starting from `v.adj`, filling the arrays and advancing once per incident edge.
+  * The time is proportional to the degree of the vertex, so `getNeighbors` is O(d).
+
+3. KRUSKAL ALGORITHM AND DISJOINTSETS USAGE
+
+---
+
+Method signature:
+
+* We implemented `public static WUGraph minSpanTree(WUGraph g)` in `graphalg.Kruskal`.
+
+High level structure:
+
+1. **Build an empty MST graph T with the same vertex set.**
+
+   * We call `g.getVertices()` to get all vertices.
+   * We construct a new `WUGraph T`.
+   * We add every vertex from `g` into `T` using `addVertex`.
+   * At this point `T` has |V| vertices, 0 edges, and `g` is unchanged.
+
+2. **Assign integer ids to vertices for `DisjointSets`.**
+
+   * Using the `Object[]` returned by `getVertices()`, we map each vertex object to an integer `0..n-1` in a `HashMap<Object,Integer>`.
+   * These ids are exactly the indices used in the `DisjointSets` structure.
+
+3. **Build a list of all undirected edges of g without double counting.**
+
+   * Let `n` be the number of vertices and `m = g.edgeCount()`.
+   * We create an `Edge[] edges = new Edge[m]`, where `Edge` is a helper class with fields `(Object u, Object v, int weight)`.
+   * For each vertex index `i`:
+
+     * Let `u = vertices[i]`.
+     * We ask `g.getNeighbors(u)` for its neighbors and weights.
+     * For each neighbor `v` in that list:
+
+       * We look up the integer id `j = vertexId.get(v)`.
+       * To avoid double counting undirected edges, we only create an `Edge` object if `i <= j`.
+       * That way, for the undirected edge `(u, v)` exactly one of `(i, j)` and `(j, i)` will be included.
+   * If for any reason we collect fewer than `m` edges (for example due to self edges or sanity checks), we trim the array to the actual number collected.
+
+4. **Sort the edges by nondecreasing weight using our own mergesort.**
+
+   * We do not use Java built in sort.
+   * We implement a standard `mergeSort(Edge[] a, int left, int right)` that:
+
+     * Recursively sorts `[left, mid]` and `[mid+1, right]`.
+     * Merges them using a helper `merge` that compares `Edge.weight`.
+   * Complexity is O(|E| log |E|).
+
+5. **Run Kruskal using DisjointSets.**
+
+   * We create `DisjointSets ds = new DisjointSets(n)`.
+   * For each sorted edge `(u, v, w)`:
+
+     * We get their ids `uId` and `vId`.
+     * We call `find` on both: `int ru = ds.find(uId)` and `int rv = ds.find(vId)`.
+     * If `ru != rv`, the edge connects two different components:
+
+       * We add the edge `(u, v)` with weight `w` to the MST graph `T` using `T.addEdge(u, v, w)`.
+       * We call `ds.union(ru, rv)` to merge the two sets.
+     * If `ru == rv`, the edge would make a cycle, so we skip it.
+
+6. **Return the MST.**
+
+   * We return `T` at the end.
+   * The input graph `g` is never modified.
+
+DisjointSets safety:
+
+* The README warns about not calling `union` on non roots or identical sets.
+* In our implementation we always use:
+
+  * `ru = ds.find(uId)`, `rv = ds.find(vId)`.
+  * We check `if (ru != rv)` before calling `union`.
+  * We call `ds.union(ru, rv)` with the two roots.
+* That means we never call union on non root indices or on the same root twice.
+
+Running time of `minSpanTree`:
+
+* Getting all vertices and building the new MST graph `T` is O(|V|).
+* Building the edge list by iterating over all adjacency lists visits each edge at most a constant number of times, which is O(|V| + |E|).
+* Sorting the edges with mergesort is O(|E| log |E|).
+* The Kruskal loop does `find` and `union` operations on the disjoint set data structure, which is O(|E| α(|V|)) where α is the inverse Ackermann function, effectively O(|E|).
+* The total running time of `minSpanTree` is O(|V| + |E| log |E|).
+
+Correctness properties:
+
+* We never modify the original graph `g`. We only read from `g` and build a separate graph `T`.
+* The algorithm only adds edges that connect different components, so the final `T` is acyclic and therefore a forest.
+* Because we process edges in nondecreasing weight order and use the disjoint set to enforce the cut property, the forest grows to a minimum spanning tree (for each connected component of the original graph).
+* Self edges in `g` are handled naturally. If any self edge appears in the edge list, `uId` equals `vId` and `find` returns the same root, so the edge is skipped and never added to the MST.
+
+4. HOW TO RUN AND WHAT WE TESTED
+
+---
+
+* To compile everything:
+
+  `javac set/*.java graph/*.java graphalg/*.java WUGTest.java KruskalTest.java`
+
+* To run the graph tests:
+
+  `java -cp . WUGTest`
+
+* To run the Kruskal MST tests:
+
+  `java -cp . KruskalTest`
+
+* On our final submission, both tests pass:
+
+  * `WUGTest` gives a full score for the graph implementation.
+  * `KruskalTest` reports that the result is a valid minimum spanning tree and gives a full score for Kruskal.
+
+---
