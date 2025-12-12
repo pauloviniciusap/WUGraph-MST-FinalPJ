@@ -1,3 +1,8 @@
+Work Division / Contributions
+By: Jake H., Juliana W., Paulo P.
+Date: 12/12/25
+
+
 
 
 
@@ -24,3 +29,26 @@ I handled edge removal by unlinking both half-edges cleanly, adjusting adjacency
 
 Utility Methods
 I finished constant-time implementations of isEdge() and weight() using VertexPair keys to efficiently look up edges.
+
+
+
+Paulo Pereira
+
+- Implemented Kruskal’s algorithm in `graphalg.Kruskal`:
+  - Wrote `public static WUGraph minSpanTree(WUGraph g)`.
+  - Built the MST graph `T` by copying all vertices from `g` without modifying the original graph.
+  - Constructed the edge list using `getVertices()` and `getNeighbors()`, avoiding double-counting by only including edges where the source vertex id is less than or equal to the destination id.
+  - Built a mapping from vertex objects to integer ids for use with `DisjointSets`.
+  - Implemented a custom merge sort on the edge array (no Java built-in sort).
+  - Ran standard Kruskal:
+    - For each edge `(u, v)` in nondecreasing weight order, added the edge to `T` only if `find(uId) != find(vId)`.
+    - Called `union(ru, rv)` only on the roots returned by `find` to keep `DisjointSets` safe.
+  - Ensured that `minSpanTree` leaves the original graph unchanged, returns a tree that passes `KruskalTest`, and runs in `O(|V| + |E| log |E|)`.
+
+- Owned the GRADER and final integration:
+  - Wrote the `GRADER` file describing the internal data structures, runtime guarantees, and Kruskal/DisjointSets design.
+  - Helped run and debug `WUGTest` and `KruskalTest` until both tests passed.
+
+- WUGraph fixes and debugging:
+  - Helped refine `graph.WUGraph` so that `addEdge`, `removeEdge`, `removeVertex`, `degree`, `edgeCount`, and `getNeighbors` all behave correctly, including self-edges.
+  - Verified that the final `WUGraph` implementation satisfies the required asymptotic bounds and passes `WUGTest`.
